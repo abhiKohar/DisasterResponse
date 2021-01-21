@@ -69,8 +69,8 @@ def clean_data(df, categories):
     # - Check how many duplicates are in this dataset.
     # - Drop the duplicates.
     # - Confirm duplicates were removed.
-    
-#     df = df[df['message'].notna()] # drop None values
+    df.drop(["id","genre","original"],axis =1,inplace = True)
+    df = df[df['related'].notna()] # drop None values
     # check number of duplicates
     print(df.head())
     np.sum(df.duplicated())
