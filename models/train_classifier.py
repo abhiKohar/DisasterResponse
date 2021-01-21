@@ -17,20 +17,20 @@ import nltk
 nltk.download("popular")
 import sys
 #used to get embeddings
-get_ipython().system('pip3 install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz')
+#get_ipython().system('pip3 install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz')
+#upgrade numpy and pandas for above -> pip install -U numpy pandas
 
 import spacy 
 from sklearn.decomposition import TruncatedSVD
 from sklearn.base import BaseEstimator, TransformerMixin
 import en_core_web_sm
-nlp = en_core_web_sm.load()
 import pickle
 
-def load_data(database_filepath):
-    
+
+def load_data(database_filepath):    
     # load data from database
-    engine = create_engine('sqlite:///disaster_data.db')
-    df = pd.read_sql_table('disaster_data_table', engine ) 
+    engine = create_engine('sqlite:///' + database_filepath )
+    df = pd.read_sql_table('disaster_response_table', engine ) 
     #Remove child alone as it has all zeros only
     df = df.drop(['child_alone'],axis=1)
     df.groupby("related").count()
@@ -51,18 +51,15 @@ def tokenize(text):
     stop_words = set(stopwords.words('english'))
     # tokenize
     tokens = word_tokenize(text) 
-    
     # lemmatizer 
-    
     lemmatizer = nltk.WordNetLemmatizer()
     # remove stop words
     tokens = [ lemmatizer.lemmatize(w) for w in tokens if w not in stop_words ]
-    
     return tokens
 
 
 def build_model():
-    
+    nlp = en_core_web_sm.load()
     embeddings_pipeline = Pipeline(
         steps=[
             ("mean_embeddings", SpacyVectorTransformer(nlp)),
@@ -72,6 +69,7 @@ def build_model():
     )
     
     return embeddings_pipeline
+
 
 def plot_scores(y_test, y_pred):
     #Testing the model
@@ -85,6 +83,7 @@ def plot_scores(y_test, y_pred):
     accuracy = (y_pred == y_test.values).mean()
     print('The model accuracy is {:.3f}'.format(accuracy))
 
+    
 def evaluate_model(model, X_test, Y_test, category_names):
     # Prediction: the multioutput classifier each indivual being Random Forest Classifier  
     # y pred is an array of shape (n_samples, n_classes )
@@ -95,9 +94,10 @@ def evaluate_model(model, X_test, Y_test, category_names):
 def save_model(model, model_filepath):
     pickle.dump(model, open(model_filepath, 'wb'))
 
+    
 class SpacyVectorTransformer(BaseEstimator, TransformerMixin):
     def __init__(self, nlp):
-        self.nlp = nlp
+        self.nlp =  nlp
         self.dim = 300
 
     def fit(self, X, y):
@@ -109,8 +109,6 @@ class SpacyVectorTransformer(BaseEstimator, TransformerMixin):
         return [self.nlp(text).vector for text in X]
     
     
-
-
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
@@ -118,6 +116,7 @@ def main():
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
         
+        print ("XXXXXXXXXXXXXXXXXX",X_train.shape,Y_train.shape)
         print('Building model...')
         model = build_model()
         
