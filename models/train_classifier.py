@@ -17,6 +17,7 @@ import nltk
 nltk.download("popular")
 import sys
 #used to get embeddings
+# install latest pip version for this to work
 #get_ipython().system('pip3 install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz')
 #upgrade numpy and pandas for above -> pip install -U numpy pandas
 
