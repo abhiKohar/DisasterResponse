@@ -16,7 +16,7 @@ def load_data(messages_filepath, categories_filepath):
     # - Assign this combined dataset to `df`, which will be cleaned later
 
     # merge datasets
-    df = messages.merge(categories,left_on = ["id"],right_on=["id"])
+    df = messages.merge(categories,on=["id"])
     
     return df, categories
 
@@ -46,6 +46,7 @@ def clean_data(df, categories):
         categories[column] = categories[column].apply(lambda x : str(x)[-1]) 
         # convert column from string to numeric
         categories[column] = pd.to_numeric(categories[column])
+    print(categories.head())
 
     # ### 5. Replace `categories` column in `df` with new category columns.
     # - Drop the categories column from the df dataframe since it is no longer needed.
@@ -53,28 +54,41 @@ def clean_data(df, categories):
     # drop the original categories column from `df`
 
     df.drop("categories",axis=1,inplace=True)
+    print(categories.head())
     # concatenate the original dataframe with the new `categories` dataframe
-    df = pd.concat([df,categories])
-
+    df = pd.concat([df,categories],axis=1)
+    print(df.head())
+    #Remove child alone as it has all zeros only
+    df = df.drop(['child_alone'],axis=1)
+    df.groupby("related").count()
+    # Given value 2 in the related field are neglible so it could be error. Replacing 2 with 1 to consider it a valid response.
+    # Alternatively, we could have assumed it to be 0 also. In the absence of information I have gone with majority class.
+    df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
 
     # ### 6. Remove duplicates.
     # - Check how many duplicates are in this dataset.
     # - Drop the duplicates.
     # - Confirm duplicates were removed.
-
+    
+#     df = df[df['message'].notna()] # drop None values
     # check number of duplicates
+    print(df.head())
     np.sum(df.duplicated())
     # drop duplicates
     df.drop_duplicates(inplace=True)
     # check number of duplicates
     np.sum(df.duplicated())
+    
+    df.reset_index(drop=True)
+    
+    print("FIND NAN VALS",df.info())
     return df
 
 def save_data(df, database_filename):
     # ### 7. Save the clean dataset into an sqlite database.
     
     engine = create_engine('sqlite:///' + str (database_filename))
-    df.to_sql('disaster_response_table', engine, index=False)
+    df.to_sql('disaster_response_table', engine, index=False,if_exists="replace")
 
 def main():
     if len(sys.argv) == 4:

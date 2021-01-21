@@ -27,17 +27,30 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import en_core_web_sm
 import pickle
 
+class SpacyVectorTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, nlp):
+        self.nlp = nlp
+        self.dim = 50
 
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X):
+        print(X.dtype)
+        X.to_csv("temp.csv",index = False)
+        # Doc.vector defaults to an average of the token vectors.
+        # https://spacy.io/api/doc#vector
+        return [self.nlp(text).vector for text in X]
+    
+ 
 def load_data(database_filepath):    
     # load data from database
     engine = create_engine('sqlite:///' + database_filepath )
     df = pd.read_sql_table('disaster_response_table', engine ) 
-    #Remove child alone as it has all zeros only
-    df = df.drop(['child_alone'],axis=1)
-    df.groupby("related").count()
-    # Given value 2 in the related field are neglible so it could be error. Replacing 2 with 1 to consider it a valid response.
-    # Alternatively, we could have assumed it to be 0 also. In the absence of information I have gone with majority class.
-    df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
+    
+    df['message'] = df['message'].astype('str') 
+    
+    print(df.head())
     # get target variables
     msg_cols = set(["message","id","original","genre"])
     target_cols = set(df.columns).difference(msg_cols)
@@ -59,17 +72,34 @@ def tokenize(text):
     return tokens
 
 
-def build_model():
-    nlp = en_core_web_sm.load()
-    embeddings_pipeline = Pipeline(
-        steps=[
-            ("mean_embeddings", SpacyVectorTransformer(nlp)),
-            ("reduce_dim", TruncatedSVD(50)),
+def build_model(pipeline="tfidf"):# tfidf or embeddings
+    if pipeline == "tfidf":
+       pipeline = Pipeline([
+            ("vect",CountVectorizer(tokenizer = tokenize)),
+            ("tfidf",TfidfTransformer()),
             ("clf",MultiOutputClassifier(RandomForestClassifier()))
-        ]
-    )
+        ])
+       param_grid = {
+        "tfidf__norm":["l1","l2"]
+       }
+
+    else:
+        nlp = en_core_web_sm.load()
+        pipeline = Pipeline(
+            steps=[
+                ("mean_embeddings", SpacyVectorTransformer(nlp)),
+                ("reduce_dim", TruncatedSVD(50)),
+                ("clf",MultiOutputClassifier(RandomForestClassifier()))
+            ]
+        )
+        param_grid = {
+        "reduce_dim__n_components":[10]
+        }
     
-    return embeddings_pipeline
+    
+    # grid search for optimal params
+    optimal_model_CV = GridSearchCV(pipeline, param_grid= param_grid) 
+    return optimal_model_CV
 
 
 def plot_scores(y_test, y_pred):
@@ -94,20 +124,6 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 def save_model(model, model_filepath):
     pickle.dump(model, open(model_filepath, 'wb'))
-
-    
-class SpacyVectorTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, nlp):
-        self.nlp =  nlp
-        self.dim = 300
-
-    def fit(self, X, y):
-        return self
-
-    def transform(self, X):
-        # Doc.vector defaults to an average of the token vectors.
-        # https://spacy.io/api/doc#vector
-        return [self.nlp(text).vector for text in X]
     
     
 def main():
@@ -117,7 +133,7 @@ def main():
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
         
-        print ("XXXXXXXXXXXXXXXXXX",X_train.shape,Y_train.shape)
+        
         print('Building model...')
         model = build_model()
         
