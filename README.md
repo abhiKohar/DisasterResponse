@@ -15,5 +15,6 @@
 
 
 ###Setup:
-pip3 install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz
-pip install -r requirements.txt
+Install 1 to use word embeddings
+1. pip3 install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz
+2. pip install -r requirements.txt
