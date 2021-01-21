@@ -22,7 +22,7 @@ def load_data(messages_filepath, categories_filepath):
 
 
 
-def clean_data(df):
+def clean_data(df, categories):
     # ### 3. Split `categories` into separate category columns.
     # - Split the values in the `categories` column on the `;` character so that each value becomes a separate column. 
     # - Use the first row of categories dataframe to create column names for the categories data.
@@ -68,6 +68,7 @@ def clean_data(df):
     df.drop_duplicates(inplace=True)
     # check number of duplicates
     np.sum(df.duplicated())
+    return df
 
 def save_data(df, database_filename):
     # ### 7. Save the clean dataset into an sqlite database.
