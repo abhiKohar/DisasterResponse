@@ -5,6 +5,7 @@ import pandas as pd
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
+import os
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
@@ -26,11 +27,11 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponse.db')
+engine = create_engine('sqlite:////home/workspace/data/DisasterResponse.db')
 df = pd.read_sql_table('disaster_response_table', engine)
 
 # load model
-model = joblib.load("../models/classifier.pkl")
+model = joblib.load("/home/workspace/models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
