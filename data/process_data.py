@@ -65,7 +65,7 @@ def clean_data(df, categories):
     # Alternatively, we could have assumed it to be 0 also. In the absence of information I have gone with majority class.
     df['related']=df['related'].map(lambda x: 1 if x == 2 else x)
 
-    # ### 6. Remove duplicates.
+    # ### Remove duplicates.
     # - Check how many duplicates are in this dataset.
     # - Drop the duplicates.
     # - Confirm duplicates were removed.
