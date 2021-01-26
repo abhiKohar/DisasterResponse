@@ -31,9 +31,9 @@ Install in the following order and try to run above steps in Instructions.
 3. pip install -r requirements.txt
 <a name="file_desc"></a>
 ### File Description
-1. app folder contains the flask app and templates to run the webapp
-2. models folder contains train_classifier.py to get the ML model
-3. data folder contains datasets and process_data.py for ETL
+1. App folder contains the flask app and templates to run the webapp
+2. Models folder contains train_classifier.py to get the ML model
+3. Data folder contains datasets and process_data.py for ETL
 4. Dataset contains pre-labelled tweet and messages from real-life disaster events from Figure Eight (now Appen)
 
 <a name="license"></a>
