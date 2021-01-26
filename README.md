@@ -6,7 +6,7 @@
 3. [File Description](#file_desc)
 4. [License](#license)
 5. [Acknowledgement](#acknowledgement)
-6. [Screenshots](#screenshots)
+6. [Webapp](#screenshots)
 
 <a name="descripton"></a>
 ### Instructions:
@@ -45,7 +45,7 @@ Install in the following order and try to run above steps in Instructions.
 * [Figure Eight](https://www.figure-eight.com/) for providing the relevant dataset to train the model
 
 <a name="screenshots"></a>
-## Screenshots
+## Webapp
 
 1. Distribution of labels in target categories and distribution of words in messages
 
