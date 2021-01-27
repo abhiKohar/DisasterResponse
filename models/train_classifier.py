@@ -159,7 +159,7 @@ def plot_scores(y_test, y_pred):
 
     
 def evaluate_model(model, X_test, Y_test, category_names):
-     """
+    """
     Evaluate Model function
     
     This function applies a ML pipeline to a test set and prints out the model performance (accuracy and f1score)

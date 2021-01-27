@@ -6,7 +6,7 @@ import sys
 
 
 def load_data(messages_filepath, categories_filepath):
-     """
+    """
     Load Messages Data with Categories Function
     
     Arguments:
@@ -15,7 +15,7 @@ def load_data(messages_filepath, categories_filepath):
     Output:
         df -> Combined data containing messages and categories
     """
-        
+    
     # load messages dataset
     messages = pd.read_csv(messages_filepath)
     # load categories dataset
@@ -73,7 +73,7 @@ def clean_data(df, categories):
     # drop the original categories column from `df`
 
     df.drop("categories",axis=1,inplace=True)
-    print(categories.head())
+    # print(categories.head())
     # concatenate the original dataframe with the new `categories` dataframe
     df = pd.concat([df,categories],axis=1)
 
